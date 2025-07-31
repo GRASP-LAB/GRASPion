@@ -6,8 +6,6 @@ body and legs available here, it can execute controlled trajectories, by moving 
 making it a new platform for the experimental study of active matter. It achieves higher velocities
 (approx. 15 cm/s) and is capable of higher computing power, than previous types of such bots.
 
-
-
 ## 3D printing of legs
 
 
