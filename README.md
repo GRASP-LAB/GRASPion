@@ -44,13 +44,19 @@ will need to use the following settings:
 
 The libraries that are needed to sucessfully compile the code are:
 
-|Adafruit Neopixel       | https://github.com/adafruit/Adafruit_NeoPixel          |
-|Adafruit DMA neopixel   | https://github.com/adafruit/Adafruit_NeoPixel_ZeroDMA  |
-|Adafruit_APDS9960       | https://github.com/adafruit/Adafruit_APDS9960          |
-|Adafruit_MLX90393       | https://github.com/adafruit/Adafruit_MLX90393_Library  |
-|Adafruit Unified Sensor | https://github.com/adafruit/Adafruit_Sensor            |
-|Adafruit_BusIO          | https://github.com/adafruit/Adafruit_BusIO             |
-|Arduino-IRremote        | https://github.com/Arduino-IRremote/Arduino-IRremote   |
+| Library | Link |
+| --- | --- |
+| Adafruit Neopixel       | https://github.com/adafruit/Adafruit_NeoPixel          |
+| Adafruit DMA neopixel   | https://github.com/adafruit/Adafruit_NeoPixel_ZeroDMA  |
+| Adafruit_APDS9960       | https://github.com/adafruit/Adafruit_APDS9960          |
+| Adafruit_MLX90393       | https://github.com/adafruit/Adafruit_MLX90393_Library  |
+| Adafruit Unified Sensor | https://github.com/adafruit/Adafruit_Sensor            |
+| Adafruit_BusIO          | https://github.com/adafruit/Adafruit_BusIO             |
+| Arduino-IRremote        | https://github.com/Arduino-IRremote/Arduino-IRremote   |
 
+The bot has to be turned on in order to compile. In order for the port to appear, it is enough to press the power 
+button once. The battery isn't required in order to upload the firmware. Caveat: if the board is removed from the body and 
+disconnected from the batter, and subsequently reassembled, the bot needs to be plugged into a charger or live USB-C
+cable in order for it to start running again.
 
 ## Code examples
