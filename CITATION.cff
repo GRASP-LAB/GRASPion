@@ -1,0 +1,23 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: GRASPion repository
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Filip
+    family-names: Novkoski
+    affiliation: >-
+      PULS, Institute for Theoretical Physics, FAU
+      Erlangen-Nurnberg
+  - affiliation: 'GRASP, Institute of Physics B5a, University of Liege'
+    given-names: Médéric
+    family-names: Mélard
+  - given-names: Nicolas
+    family-names: Vandewalle
+    affiliation: 'GRASP, Institute of Physics B5a, University of Liege'
+repository-code: 'https://github.com/GRASP-LAB/GRASPion'
+url: 'https://graspion.be/'
