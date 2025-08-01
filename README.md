@@ -33,5 +33,24 @@ flexibility of the legs. The wedge plate is printed using the same material.
 
 ## Arduino setup
 
+We recommend using the legay Arduino IDE (1.8.19). In order to compile and upload the sketch, you
+will need to use the following settings:
+
+|    Setting    |     Value     |
+| ------------- | ------------- |
+|       Board      | Adafruit QT Py M0(SAMD21) ([see here](https://learn.adafruit.com/add-boards-arduino-v164/setup))|
+|   Optimization   |  Ofast  |
+|     USB Stack    |  TinyUSB  |
+
+The libraries that are needed to sucessfully compile the code are:
+
+|Adafruit Neopixel       | https://github.com/adafruit/Adafruit_NeoPixel          |
+|Adafruit DMA neopixel   | https://github.com/adafruit/Adafruit_NeoPixel_ZeroDMA  |
+|Adafruit_APDS9960       | https://github.com/adafruit/Adafruit_APDS9960          |
+|Adafruit_MLX90393       | https://github.com/adafruit/Adafruit_MLX90393_Library  |
+|Adafruit Unified Sensor | https://github.com/adafruit/Adafruit_Sensor            |
+|Adafruit_BusIO          | https://github.com/adafruit/Adafruit_BusIO             |
+|Arduino-IRremote        | https://github.com/Arduino-IRremote/Arduino-IRremote   |
+
 
 ## Code examples
