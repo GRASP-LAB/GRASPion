@@ -5,43 +5,43 @@
 #include <Adafruit_APDS9960.h>
 #include <IRremote.hpp>
 
-#define NEOPIX_PIN  11    //Neopixel Arduino pinName
-#define NEOPIX_NUM  2     //Number on neopix 0=BOTTOM 1=TOP
-#define NEOPIX_BOT  0     //Bottom led address in neopîx strip
-#define NEOPIX_TOP  1     //Top led address in neopîx strip
-#define LIGHT_PIN   A0    //Light Sensor Arduino pinName
-#define MLX_I2CADD  0x10  //MLX90393xLQ-ABA-011 I2C address
-#define IR_RX_PIN   7
-#define BUZ_EN_PIN  12    //buzzers drivers enable pin
-#define BUZR_PIN    2
-#define BUZL_PIN    3
-#define SUPPLY_READ_MS  2000 //ms bettween read powr info from the board
-#define BLINK_MS        200 //Bink LED time [ms]
-#define APDS_INT_PIN  8
-#define APDS_LED_PIN  10
+#define NEOPIX_PIN  11        // Neopixel Arduino pinName
+#define NEOPIX_NUM  2         // Number on neopix 0=BOTTOM 1=TOP
+#define NEOPIX_BOT  0         // Bottom led address in neopîx strip
+#define NEOPIX_TOP  1         // Top LED address in neopîx strip
+#define LIGHT_PIN   A0        // Light Sensor Arduino pinName
+#define MLX_I2CADD  0x10      // MLX90393xLQ-ABA-011 I2C address
+#define IR_RX_PIN   7         // IR receiver PIN
+#define BUZ_EN_PIN  12        // buzzers drivers enable pin
+#define BUZR_PIN    2         // Right motor PIN
+#define BUZL_PIN    3         // LEFT motor PIN
+#define SUPPLY_READ_MS  2000  // ms bettween read powr info from the board
+#define BLINK_MS        200   // Blink LED time [ms]
+#define APDS_INT_PIN  8       
+#define APDS_LED_PIN  10      
 
 
 Adafruit_APDS9960 apds;
 
-Adafruit_NeoPixel pixels(NEOPIX_NUM, NEOPIX_PIN, NEO_GRB + NEO_KHZ800); //create neopixels strip
-Adafruit_MLX90393 magSns = Adafruit_MLX90393(); //create magnetometer
+Adafruit_NeoPixel pixels(NEOPIX_NUM, NEOPIX_PIN, NEO_GRB + NEO_KHZ800);  // Create neopixels strip
+Adafruit_MLX90393 magSns = Adafruit_MLX90393();                          // Create magnetometer
 
 struct {float x,y,z,norm;}mag;  //to store magnitude [uT]
 unsigned long now=0;            //to store actual ms
 unsigned long ledBlink=0;       //to store futur ledblink ms
+
 struct {uint16_t mVusb; uint16_t mVbat; bool usbPwrd; unsigned long mVreadTime;}brdInfo; //to store brp power info
 
 uint8_t buzPwr = 127;            //to store buz magnitude
 
 
-unsigned long lastChangeTime = 0;  // Stocke le dernier moment où la direction a changé
-unsigned long directionDurationMod1 = 1000;  // Durée en millisecondes
-unsigned long directionDurationMod2 = 1000;  // Durée en millisecondes
+unsigned long lastChangeTime = 0;             // DIFFUSION - Stocking direction change time 
+unsigned long directionDurationMod1 = 1000;   // DIFFUSION - Duration in ms
+unsigned long directionDurationMod2 = 1000;   // DIFFUSION - Duration in ms
 
-int currentChoice = -1;  // Stocke le choix de direction actuel
+int currentChoice = -1;  // DIFFUSION - Current direction choice
 bool isRDM = false;
 unsigned long userMods = 0;
-unsigned long runner = 0;
 
 int8_t activeBuzPin;
 
@@ -51,29 +51,28 @@ void setup() {
 	
 	Wire.begin();
   Serial1.begin(4800); // Init SerialIR 
-  Serial.begin(9600); // Init USB serial port4
+  Serial.begin(9600);  // Init USB serial port4
 	
 	delay(500);
 
 	Serial1.println(__FILE__);
   Serial.println(__FILE__);
+ 
+	pixels.begin();                                    // Init NeoPixel strip object (REQUIRED)
+  magSns.begin_I2C(MLX_I2CADD, &Wire);               // Init Mag sensor
+  IrReceiver.begin(IR_RX_PIN, ENABLE_LED_FEEDBACK);  // Init IR receiver
 
-	pixels.begin(); // Init NeoPixel strip object (REQUIRED)
-  magSns.begin_I2C(MLX_I2CADD, &Wire); // Init Mag sensor
-  IrReceiver.begin(IR_RX_PIN, ENABLE_LED_FEEDBACK);
-
-	pinMode(BUZ_EN_PIN, OUTPUT);    //BUZ EN PIN as output
-  digitalWrite(BUZ_EN_PIN, LOW);  //Disable Buz
+	pinMode(BUZ_EN_PIN, OUTPUT);    // BUZ EN PIN as output
+  digitalWrite(BUZ_EN_PIN, LOW);  // Disable Buz
 
 	analogWriteResolution(8);
 	
-  pinMode(BUZR_PIN, OUTPUT);    //BUZ R PWM PIN as output
-	pinMode(BUZL_PIN, OUTPUT);    //BUZ L PWM PIN as output
+  pinMode(BUZR_PIN, OUTPUT);    // BUZ R PWM PIN as output
+	pinMode(BUZL_PIN, OUTPUT);    // BUZ L PWM PIN as output
 
 	
-	randomSeed(analogRead(A0));
+	randomSeed(analogRead(A0));  // Seeding random
 	
-
   activeBuzPin = -1;
   buzStop(0);
 
@@ -99,127 +98,62 @@ void loop() {
       switch(IrReceiver.decodedIRData.command){
         
 			case 0x10: //Button[1] TV NEC(code 1359) from grundig 19935 universal remote
-				buzPwr = 127;
 				
         break;
-				
-			case 0x11: //Button[2] TV NEC(code 1359) from grundig 19935 universal remote
-				
-				buzPwr = 121;
-        
-        break;
-				
-			case 0x12: //Button[3] TV NEC(code 1359) from grundig 19935 universal remote
-				
-				buzPwr = 115;
-				
-				break;
-				
-      case 0x13: //Button[4] TV NEC(code 1359) from grundig 19935 universal remote
-
-				buzPwr = 109;
-				
-        break;
-        
-			case 0x14: //Button[5] TV NEC(code 1359) from grundig 19935 universal remote
-
-				buzPwr = 103;
-				
-        break;
-
-			case 0x15: //Button[6] TV NEC(code 1359) from grundig 19935 universal remote
-
-				buzPwr = 97;
-				
-        break;
-
-			case 0x16: //Button[7] TV NEC(code 1359) from grundig 19935 universal remote
-
-				buzPwr = 91;
-				
-        break;
-
-			case 0x17: //Button[8] TV NEC(code 1359) from grundig 19935 universal remote
-
-				buzPwr = 85;
-				
-        break;
-
-			case 0x18: //Button[9] TV NEC(code 1359) from grundig 19935 universal remote
-
-				buzPwr = 79;
-				
-        break;
-
-		 case 0x1A: //Button[0] TV NEC(code 1359) from grundig 19935 universal remote
-
-				buzPwr = 72;
-				
-        break;
+			 
 
 			case 0x09: //Button[MUTE] TV NEC(code 1359) from grundig 19935 universal remote
           
         break;
         
-        case 0x4A: //Button[MENU] TV NEC(code 1359) from grundig 19935 universal remote
-					break;
+			case 0x4A: //Button[MENU] TV NEC(code 1359) from grundig 19935 universal remote
+				break;
 
-        case 0x00: //Button[UP ARROW] TV NEC(code 1359) from grundig 19935 universal remote
-						buzStop(0);
-						buzCw(buzPwr, BUZR_PIN);
-						buzCw(buzPwr, BUZL_PIN);
-
+			case 0x00: //Button[UP ARROW] TV NEC(code 1359) from grundig 19935 universal remote
+				buzStop(0);
+				buzCw(buzPwr, BUZR_PIN);
+				buzCw(buzPwr, BUZL_PIN);
+				
         break;
         
-        case 0x01: //Button[DOWN ARROW] TV NEC(code 1359) from grundig 19935 universal remote
-          buzStop(0);
-          isRDM = false;
-          activeBuzPin = -1;
+			case 0x01: //Button[DOWN ARROW] TV NEC(code 1359) from grundig 19935 universal remote
+				buzStop(0);
+				isRDM = false;
+				activeBuzPin = -1;
         break;
         
-        case 0x02: //Button[RIGHT ARROW] TV NEC(code 1359) from grundig 19935 universal remote
-          buzStop(0);
-          buzCw(buzPwr, BUZL_PIN); 
+			case 0x02: //Button[RIGHT ARROW] TV NEC(code 1359) from grundig 19935 universal remote
+				buzStop(0);
+				buzCw(buzPwr, BUZL_PIN); 
         break;
         
-        case 0x03: //Button[LEFT ARROW] TV NEC(code 1359) from grundig 19935 universal remote
-          buzStop(0);
-          buzCw(buzPwr, BUZR_PIN);
+			case 0x03: //Button[LEFT ARROW] TV NEC(code 1359) from grundig 19935 universal remote
+				buzStop(0);
+				buzCw(buzPwr, BUZR_PIN);
         break;
-
-        case 0x58: //Button[SLEEP] TV NEC(code 1359) from grundig 19935 universal remote
-          
-        break;
+				
         
-        case 0x0F: //Button[DISP] TV NEC(code 1359) from grundig 19935 universal remote
-
-        break;
-        
-        case 0x0A: //Button[AV] TV NEC(code 1359) from grundig 19935 universal remote
-          isRDM = true;
-          userMods = 1;
-          launchRT();
+			case 0x0A: //Button[AV] TV NEC(code 1359) from grundig 19935 universal remote
+				isRDM = true;
+				userMods = 1;
+				launchRT();
         break;
         
       }
     }
     IrReceiver.resume();
   }
-
+	
   switch (userMods) {
 	case 1: 
 		if (isRDM) {
 			launchRT();
 		}
 		break;
-
-
-
+		
+		
+		
   }
-
-
-
-
 
 }
 
@@ -250,6 +184,7 @@ void readBrdPwr(){
   }
 }
 
+
 void buzStop(uint8_t pin){
   uint8_t pwr = 127;
   if(!pin){
@@ -265,20 +200,23 @@ void buzCw(uint8_t val, uint8_t pin){
   uint8_t pwr;
   digitalWrite(BUZ_EN_PIN, HIGH);
   pwr = 127 + min(abs(val),128);
-  analogWrite(pin, pwr); //(from 127->255 [0%->100%])
+  analogWrite(pin, pwr);  // (from 127->255 [0%->100%])
 }
 
 void buzCcw(uint8_t val, uint8_t pin){
   uint8_t pwr;
   digitalWrite(BUZ_EN_PIN, HIGH);
   pwr = 127 - min(abs(val),127); 
-  analogWrite(pin, pwr); // (from 127 to 0 [0%->-100%])
+  analogWrite(pin, pwr);  // (from 127 to 0 [0%->-100%])
 }
 
 
 
 void launchRT() {
-  // Vérifier si 'directionDirection' secondes se sont écoulées depuis le dernier changement
+
+	// DIFFUSIVE MOTION
+	// Going straigh for a random time beteen 400 and 1201 ms
+	// Turning randomly left or right for a random time between 400 and 1201 ms
   		
 	if (now - lastChangeTime >= directionDurationMod1) {
 
@@ -289,7 +227,6 @@ void launchRT() {
 			
 			buzCw(buzPwr, BUZR_PIN);
 			buzCw(buzPwr, BUZL_PIN);
-			//Serial.println("RT: Straight");
 
 			currentChoice = 2;
 			
@@ -302,16 +239,14 @@ void launchRT() {
       directionDurationMod1 = random(400, 1201);
       
       switch (currentChoice) {
-        case 0: // To the LEFT
+        case 0: // Turn LEFT
           buzCw(buzPwr, BUZR_PIN);
           buzStop(BUZL_PIN);
-          //Serial.println("RT: To the LEFT");
           break;
   
-        case 1: // To the RIGHT
+        case 1: // Turn RIGHT
           buzCw(buzPwr, BUZL_PIN);
           buzStop(BUZR_PIN);
-          //Serial.println("RT: To the RIGHT");
           break;
       }
 

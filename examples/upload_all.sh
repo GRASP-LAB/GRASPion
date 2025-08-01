@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Number of times to execute
-N=20  # Change this to however many times you want
+N=20  
 
-# Your base command without the port
-BASE_CMD="arduino-cli compile --fqbn adafruit:samd:adafruit_qtpy_m0 --upload tissue.ino"
+# The arduino-cli base command
+BASE_CMD="arduino-cli compile --fqbn adafruit:samd:adafruit_qtpy_m0 --upload remoteControl.ino"
 
 # Loop from 0 to N-1
 for ((i=0; i<N; i++)); do
