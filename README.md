@@ -60,3 +60,11 @@ disconnected from the batter, and subsequently reassembled, the bot needs to be 
 cable in order for it to start running again.
 
 ## Code examples
+
+Two code examples have been included in the examples directory, one which includes basic remote
+control along with a preprogrammed diffusuive motion, and a second one which includes color emission
+and synchronization (see PDF for details), Along with these examples, an bash upload script is
+included to facilitate uploading to large numbers of bots through the use of a USB hub. The upload
+script relies on [arduino-cli](https://github.com/arduino/arduino-cli), which can easily be
+installed on Linux distributions.
+
