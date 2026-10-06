@@ -12,8 +12,8 @@
           "category": "Contributed",
           "url": "https://github.com/GRASP-LAB/GRASPion/releases/download/arduino-nrf52-1.0.0/graspion-nrf52-1.0.0.tar.bz2",
           "archiveFileName": "graspion-nrf52-1.0.0.tar.bz2",
-          "checksum": "SHA-256:facfe445e6ce84ea05b83b2cd67435e33c36be2ff06ddad2e926c39de9f680d7",
-          "size": "20384340",
+          "checksum": "SHA-256:12710971985ad3c2e4fb334031685d1beb4471a37d570624e66583db29840f3d",
+          "size": "20366846",
           "boards": [
             {
               "name": "GRASPion Head nRF52832"
