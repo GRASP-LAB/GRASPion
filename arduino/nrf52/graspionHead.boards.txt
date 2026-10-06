@@ -1,0 +1,47 @@
+# -----------------------------------
+# GRASPion Head - ANNA-B112 / nRF52832
+# -----------------------------------
+
+graspionHead.name=GRASPion Head nRF52832
+
+graspionHead.bootloader.tool=bootburn
+graspionHead.upload.tool=nrfutil
+graspionHead.upload.protocol=nrfutil
+graspionHead.upload.use_1200bps_touch=false
+graspionHead.upload.wait_for_upload_port=false
+graspionHead.upload.native_usb=false
+graspionHead.upload.maximum_size=290816
+graspionHead.upload.maximum_data_size=51712
+
+graspionHead.build.mcu=cortex-m4
+graspionHead.build.f_cpu=64000000
+graspionHead.build.board=NRF52832_GRASPIONHEAD
+graspionHead.build.core=nRF5
+graspionHead.build.variant=graspionHead
+graspionHead.build.usb_manufacturer="GRASP Lab"
+graspionHead.build.usb_product="GRASPion Head"
+graspionHead.build.extra_flags=-DNRF52832_XXAA -DNRF52
+graspionHead.build.ldscript=nrf52832_s132_v6.ld
+graspionHead.build.openocdscript=scripts/openocd/daplink_nrf52.cfg
+
+graspionHead.menu.softdevice.s132v6=S132 6.1.1
+graspionHead.menu.softdevice.s132v6.build.sd_name=s132
+graspionHead.menu.softdevice.s132v6.build.sd_version=6.1.1
+graspionHead.menu.softdevice.s132v6.build.sd_fwid=0x00B7
+
+graspionHead.menu.debug.l0=Level 0 (Release)
+graspionHead.menu.debug.l0.build.debug_flags=-DCFG_DEBUG=0
+graspionHead.menu.debug.l1=Level 1 (Error Message)
+graspionHead.menu.debug.l1.build.debug_flags=-DCFG_DEBUG=1
+graspionHead.menu.debug.l2=Level 2 (Full Debug)
+graspionHead.menu.debug.l2.build.debug_flags=-DCFG_DEBUG=2
+graspionHead.menu.debug.l3=Level 3 (Segger SystemView)
+graspionHead.menu.debug.l3.build.debug_flags=-DCFG_DEBUG=3
+graspionHead.menu.debug.l3.build.sysview_flags=-DCFG_SYSVIEW=1
+
+graspionHead.menu.debug_output.serial=Serial
+graspionHead.menu.debug_output.serial.build.logger_flags=-DCFG_LOGGER=0
+graspionHead.menu.debug_output.serial1=Serial1
+graspionHead.menu.debug_output.serial1.build.logger_flags=-DCFG_LOGGER=1 -DCFG_TUSB_DEBUG=CFG_DEBUG
+graspionHead.menu.debug_output.rtt=Segger RTT
+graspionHead.menu.debug_output.rtt.build.logger_flags=-DCFG_LOGGER=2 -DCFG_TUSB_DEBUG=CFG_DEBUG -DSEGGER_RTT_MODE_DEFAULT=SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL
