@@ -1,0 +1,65 @@
+name: Build GRASPion nRF52 Arduino package
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: GRASPion nRF52 package version
+        required: true
+        default: 1.0.0
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build package
+        run: |
+          python3 arduino/nrf52/build_package.py --version "${{ inputs.version }}"
+
+      - name: Create or update GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          TAG="arduino-nrf52-${VERSION}"
+          ARCHIVE="dist/graspion-nrf52-${VERSION}.tar.bz2"
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$ARCHIVE" --clobber
+          else
+            gh release create "$TAG" "$ARCHIVE" \
+              --title "GRASPion nRF52 Arduino ${VERSION}" \
+              --notes "Arduino Boards Manager package for the GRASPion Head nRF52832, based on Adafruit nRF52 core 1.7.0."
+          fi
+
+      - name: Update stable Boards Manager index
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          cp dist/package_graspion_index.json package_graspion_index.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package_graspion_index.json
+
+          if git diff --cached --quiet; then
+            echo "Board Manager index already up to date"
+            exit 0
+          fi
+
+          git commit -m "Update GRASPion nRF52 package index to ${VERSION}"
+          git push origin HEAD:${GITHUB_REF_NAME}
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: graspion-nrf52-${{ inputs.version }}
+          path: |
+            dist/graspion-nrf52-${{ inputs.version }}.tar.bz2
+            dist/package_graspion_index.json
