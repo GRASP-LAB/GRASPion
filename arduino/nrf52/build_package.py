@@ -104,10 +104,11 @@ def main() -> None:
         shutil.copytree(extracted, package_root)
 
         boards_txt = package_root / "boards.txt"
+        board_text = board_fragment.read_text(encoding="utf-8")
         with boards_txt.open("a", encoding="utf-8", newline="\n") as f:
             f.write("\n\n")
-            f.write(board_fragment.read_text(encoding="utf-8"))
-            if not board_fragment.read_text(encoding="utf-8").endswith("\n"):
+            f.write(board_text)
+            if not board_text.endswith("\n"):
                 f.write("\n")
 
         target_variant = package_root / "variants" / "graspionHead"
@@ -153,7 +154,7 @@ def main() -> None:
         "packages": [
             {
                 "name": "graspion",
-                "maintainer": "GRASP Lab - University of Liege",
+                "maintainer": "GRASP Lab - University of Liège",
                 "websiteURL": "https://graspion.be",
                 "platforms": [platform],
                 "tools": tools,
