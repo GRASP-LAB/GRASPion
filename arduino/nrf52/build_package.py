@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Build the GRASPion nRF52 Arduino Boards Manager package.
 
-The package is based on Adafruit_nRF52_Arduino 1.7.0. It adds the
-GRASPion Head board definition and variant without vendoring the full
-Adafruit core in this repository.
+The package is based on Adafruit_nRF52_Arduino 1.7.0. It keeps the
+Adafruit core and toolchain support, but exposes only the GRASPion Head
+board and its dedicated variant.
 """
 
 from __future__ import annotations
@@ -103,18 +103,18 @@ def main() -> None:
         package_root = tmp / package_root_name
         shutil.copytree(extracted, package_root)
 
-        boards_txt = package_root / "boards.txt"
+        # Expose only the GRASPion Head board in Arduino's board menu.
         board_text = board_fragment.read_text(encoding="utf-8")
-        with boards_txt.open("a", encoding="utf-8", newline="\n") as f:
-            f.write("\n\n")
-            f.write(board_text)
-            if not board_text.endswith("\n"):
-                f.write("\n")
+        if not board_text.endswith("\n"):
+            board_text += "\n"
+        (package_root / "boards.txt").write_text(board_text, encoding="utf-8")
 
-        target_variant = package_root / "variants" / "graspionHead"
-        if target_variant.exists():
-            shutil.rmtree(target_variant)
-        shutil.copytree(variant_dir, target_variant)
+        # Remove all upstream board variants and keep only graspionHead.
+        variants_root = package_root / "variants"
+        if variants_root.exists():
+            shutil.rmtree(variants_root)
+        variants_root.mkdir(parents=True)
+        shutil.copytree(variant_dir, variants_root / "graspionHead")
 
         with tarfile.open(archive_path, "w:bz2") as tar:
             tar.add(package_root, arcname=package_root_name)
