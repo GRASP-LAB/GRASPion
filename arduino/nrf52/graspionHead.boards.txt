@@ -1,3 +1,7 @@
+menu.softdevice=SoftDevice
+menu.debug=Debug Level
+menu.debug_output=Debug Port
+
 # -----------------------------------
 # GRASPion Head - ANNA-B112 / nRF52832
 # -----------------------------------
