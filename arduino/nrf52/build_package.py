@@ -56,6 +56,47 @@ def find_adafruit_nrf52_platform(index: dict) -> tuple[dict, dict]:
     )
 
 
+def apply_i2s_patch(package_root: Path, patch_dir: Path) -> None:
+    """Add the nrfx I2S driver omitted by Adafruit nRF52 1.7.0 and enable it."""
+    i2s_source = patch_dir / "nrfx_i2s.c"
+    if not i2s_source.exists():
+        raise FileNotFoundError(i2s_source)
+
+    i2s_destination = (
+        package_root
+        / "cores"
+        / "nRF5"
+        / "nordic"
+        / "nrfx"
+        / "drivers"
+        / "src"
+        / "nrfx_i2s.c"
+    )
+    shutil.copy2(i2s_source, i2s_destination)
+
+    config_path = package_root / "cores" / "nRF5" / "nordic" / "nrfx_config.h"
+    config_text = config_path.read_text(encoding="utf-8")
+
+    if "NRFX_I2S_ENABLED" not in config_text:
+        anchor = "#define NRFX_CLOCK_ENABLED 0\n"
+        if anchor not in config_text:
+            raise RuntimeError(f"Could not patch {config_path}: expected anchor not found")
+        config_text = config_text.replace(
+            anchor,
+            anchor
+            + "\n#define NRFX_I2S_ENABLED             1\n"
+            + "#define NRFX_I2S_DEFAULT_CONFIG_IRQ_PRIORITY 7\n",
+            1,
+        )
+    else:
+        config_text = config_text.replace(
+            "#define NRFX_I2S_ENABLED             0",
+            "#define NRFX_I2S_ENABLED             1",
+        )
+
+    config_path.write_text(config_text, encoding="utf-8")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--version", default="1.0.0", help="GRASPion package version")
@@ -76,6 +117,7 @@ def main() -> None:
 
     board_fragment = script_dir / "graspionHead.boards.txt"
     variant_dir = script_dir / "variants" / "graspionHead"
+    patch_dir = script_dir / "patches"
 
     if not board_fragment.exists():
         raise FileNotFoundError(board_fragment)
@@ -102,6 +144,9 @@ def main() -> None:
         extracted = tmp / f"Adafruit_nRF52_Arduino-{ADAFRUIT_CORE_VERSION}"
         package_root = tmp / package_root_name
         shutil.copytree(extracted, package_root)
+
+        # Add the nrfx I2S source and enable the driver in the frozen 1.7.0 core.
+        apply_i2s_patch(package_root, patch_dir)
 
         # Expose only the GRASPion Head board in Arduino's board menu.
         board_text = board_fragment.read_text(encoding="utf-8")
