@@ -92,12 +92,12 @@ static const uint8_t A7 = PIN_A7;
  * GRASPion therefore defines only Serial; no Serial1/Serial2 pins are
  * declared by this variant.
  *
- * nRF P0.27 TX -> STM32 PA3 / LPUART1_RX
- * nRF P0.28 RX <- STM32 PA2 / LPUART1_TX
+ * nRF P0.29 TX -> STM32 RX
+ * nRF P0.30 RX <- STM32 TX
  *------------------------------------------------------------------*/
 
-#define PIN_SERIAL_TX        (27)
-#define PIN_SERIAL_RX        (28)
+#define PIN_SERIAL_TX        (29)
+#define PIN_SERIAL_RX        (30)
 
 /*------------------------------------------------------------------*/
 /* I2C
