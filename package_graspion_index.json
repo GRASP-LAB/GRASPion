@@ -8,12 +8,12 @@
         {
           "name": "GRASPion nRF52 Boards",
           "architecture": "nrf52",
-          "version": "1.0.2",
+          "version": "1.0.3",
           "category": "Contributed",
-          "url": "https://github.com/GRASP-LAB/GRASPion/releases/download/arduino-nrf52-1.0.2/graspion-nrf52-1.0.2.tar.bz2",
-          "archiveFileName": "graspion-nrf52-1.0.2.tar.bz2",
-          "checksum": "SHA-256:1620e03a57ad0803dfa1a78e0464401d72b92edf81fab8a1b7d063682b96670b",
-          "size": "20365765",
+          "url": "https://github.com/GRASP-LAB/GRASPion/releases/download/arduino-nrf52-1.0.3/graspion-nrf52-1.0.3.tar.bz2",
+          "archiveFileName": "graspion-nrf52-1.0.3.tar.bz2",
+          "checksum": "SHA-256:a63c4418dba1f65ff5ca64aa4d62e56877ab9f4c20436dd7ba15b40429e227b3",
+          "size": "20369495",
           "boards": [
             {
               "name": "GRASPion Head nRF52832"
