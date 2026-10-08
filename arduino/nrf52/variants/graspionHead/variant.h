@@ -38,6 +38,7 @@ extern "C"
 
 #define PIN_LED1             (15)
 #define LED_BUILTIN          PIN_LED1
+#define LED_BLUE             PIN_LED1
 #define LED_STATE_ON         1
 
 /*------------------------------------------------------------------*/
