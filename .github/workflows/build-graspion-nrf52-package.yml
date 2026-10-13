@@ -23,6 +23,42 @@ jobs:
         run: |
           python3 arduino/nrf52/build_package.py --version "${{ inputs.version }}"
 
+      - name: Preserve other GRASPion architectures in index
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          stable_path = Path("package_graspion_index.json")
+          generated_path = Path("dist/package_graspion_index.json")
+
+          stable = json.loads(stable_path.read_text(encoding="utf-8"))
+          generated = json.loads(generated_path.read_text(encoding="utf-8"))
+
+          stable_pkg = stable["packages"][0]
+          generated_pkg = generated["packages"][0]
+
+          nrf52_platform = next(
+              p for p in generated_pkg["platforms"] if p.get("architecture") == "nrf52"
+          )
+          other_platforms = [
+              p for p in stable_pkg.get("platforms", [])
+              if p.get("architecture") != "nrf52"
+          ]
+
+          tools = {}
+          for tool in stable_pkg.get("tools", []) + generated_pkg.get("tools", []):
+              tools[(tool.get("name", ""), tool.get("version", ""))] = tool
+
+          generated_pkg["platforms"] = other_platforms + [nrf52_platform]
+          generated_pkg["tools"] = list(tools.values())
+
+          generated_path.write_text(
+              json.dumps(generated, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          PY
+
       - name: Create or update GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
