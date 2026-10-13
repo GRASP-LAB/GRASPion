@@ -41,6 +41,61 @@
               "version": "0.11.0-arduino2"
             }
           ]
+        },
+        {
+          "name": "GRASPion SAMD Boards",
+          "architecture": "samd",
+          "version": "1.0.0",
+          "category": "Contributed",
+          "url": "https://github.com/GRASP-LAB/GRASPion/releases/download/arduino-samd-1.0.0/graspion-samd-1.0.0.tar.bz2",
+          "archiveFileName": "graspion-samd-1.0.0.tar.bz2",
+          "checksum": "SHA-256:84a8bd2cb8e630785ca38906f748afce00b275b8011851a4fc1534e348e271f1",
+          "size": "4259185",
+          "boards": [
+            {
+              "name": "Adafruit QT Py M0 (SAMD21)"
+            },
+            {
+              "name": "GRASPion Body (SAMD21)"
+            }
+          ],
+          "toolsDependencies": [
+            {
+              "packager": "graspion",
+              "name": "arm-none-eabi-gcc",
+              "version": "9-2019q4"
+            },
+            {
+              "packager": "arduino",
+              "name": "bossac",
+              "version": "1.7.0-arduino3"
+            },
+            {
+              "packager": "graspion",
+              "name": "bossac",
+              "version": "1.8.0-48-gb176eee"
+            },
+            {
+              "packager": "arduino",
+              "name": "openocd",
+              "version": "0.11.0-arduino2"
+            },
+            {
+              "packager": "graspion",
+              "name": "CMSIS",
+              "version": "5.4.0"
+            },
+            {
+              "packager": "graspion",
+              "name": "CMSIS-Atmel",
+              "version": "1.2.2"
+            },
+            {
+              "packager": "arduino",
+              "name": "arduinoOTA",
+              "version": "1.2.1"
+            }
+          ]
         }
       ],
       "tools": [
