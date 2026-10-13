@@ -16,6 +16,21 @@ NeoPixel indices and `MLX90393_I2C_ADDRESS`.
 Unlike the upstream QT Py M0 variant, D12 is **not** driven high during
 `initVariant()`: on GRASPion Body D12 is `BUZ_ENABLE`.
 
+## Core dependencies
+
+ArduinoCore-samd 1.7.17 references two libraries as git submodules. GitHub
+source archives do not include their contents, so the builder downloads the
+exact commits used by Adafruit 1.7.17:
+
+- Adafruit_TinyUSB_Arduino: `c953968c468218d8968138b5ed8482fa565373df`
+- Adafruit_ZeroDMA: `acc5dadb458b2c329757a61dc4f18dda945a0c36`
+
+The build fails if the expected headers are missing from the generated package.
+
+Application libraries such as Adafruit NeoPixel, Adafruit MLX90393, Adafruit
+BusIO and Adafruit Unified Sensor are intentionally not bundled in the core;
+they should be installed through Arduino Library Manager when needed.
+
 ## Local build
 
 From the repository root:
@@ -32,9 +47,11 @@ Run the GitHub Actions workflow **Build GRASPion SAMD Arduino package** and set
 the desired package version. The workflow:
 
 1. downloads Adafruit ArduinoCore-samd 1.7.17;
-2. keeps only the QT Py M0 and GRASPion Body board definitions;
-3. keeps the upstream `qtpy_m0` variant and adds `graspionBody`;
-4. builds `graspion-samd-VERSION.tar.bz2`;
-5. creates or updates release `arduino-samd-VERSION`;
-6. merges the SAMD platform into the common `package_graspion_index.json`
+2. downloads the exact TinyUSB and ZeroDMA submodule commits used by that core;
+3. keeps only the QT Py M0 and GRASPion Body board definitions;
+4. keeps the upstream `qtpy_m0` variant and adds `graspionBody`;
+5. validates the generated archive contents;
+6. builds `graspion-samd-VERSION.tar.bz2`;
+7. creates or updates release `arduino-samd-VERSION`;
+8. merges the SAMD platform into the common `package_graspion_index.json`
    without removing the nRF52 platform.
