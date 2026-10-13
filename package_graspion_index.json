@@ -49,8 +49,8 @@
           "category": "Contributed",
           "url": "https://github.com/GRASP-LAB/GRASPion/releases/download/arduino-samd-1.0.0/graspion-samd-1.0.0.tar.bz2",
           "archiveFileName": "graspion-samd-1.0.0.tar.bz2",
-          "checksum": "SHA-256:84a8bd2cb8e630785ca38906f748afce00b275b8011851a4fc1534e348e271f1",
-          "size": "4259185",
+          "checksum": "SHA-256:21f24171e7a5c1044a6b15bfdd2c55071f1895e0ae70a2821c176e7144bf36c1",
+          "size": "4599852",
           "boards": [
             {
               "name": "Adafruit QT Py M0 (SAMD21)"
