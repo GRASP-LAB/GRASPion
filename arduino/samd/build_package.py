@@ -4,6 +4,10 @@
 The package is based on Adafruit ArduinoCore-samd 1.7.17. It keeps the
 Adafruit SAMD core/toolchain support, but exposes only the Adafruit QT Py M0
 and the GRASPion Body board.
+
+ArduinoCore-samd 1.7.17 uses Adafruit_TinyUSB_Arduino and Adafruit_ZeroDMA as
+git submodules. GitHub source archives do not contain submodule contents, so
+this builder downloads the exact submodule commits referenced by the core.
 """
 
 from __future__ import annotations
@@ -26,6 +30,22 @@ ADAFRUIT_INDEX_URL = (
     "https://adafruit.github.io/arduino-board-index/package_adafruit_index.json"
 )
 
+TINYUSB_COMMIT = "c953968c468218d8968138b5ed8482fa565373df"
+ZERODMA_COMMIT = "acc5dadb458b2c329757a61dc4f18dda945a0c36"
+
+SUBMODULES = {
+    "Adafruit_TinyUSB_Arduino": {
+        "repo": "adafruit/Adafruit_TinyUSB_Arduino",
+        "commit": TINYUSB_COMMIT,
+        "required": "src/Adafruit_TinyUSB.h",
+    },
+    "Adafruit_ZeroDMA": {
+        "repo": "adafruit/Adafruit_ZeroDMA",
+        "commit": ZERODMA_COMMIT,
+        "required": "Adafruit_ZeroDMA.h",
+    },
+}
+
 
 def download(url: str, destination: Path) -> None:
     print(f"Downloading {url}")
@@ -39,6 +59,52 @@ def sha256(path: Path) -> str:
         for block in iter(lambda: f.read(1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+def extract_archive(archive: Path, destination: Path) -> Path:
+    with tarfile.open(archive, "r:gz") as tar:
+        members = tar.getmembers()
+        if not members:
+            raise RuntimeError(f"Empty archive: {archive}")
+        root_name = members[0].name.split("/", 1)[0]
+        tar.extractall(destination, filter="data")
+    root = destination / root_name
+    if not root.exists():
+        raise RuntimeError(f"Could not find extracted root {root}")
+    return root
+
+
+def install_submodule(package_root: Path, tmp: Path, name: str, spec: dict) -> None:
+    archive = tmp / f"{name}.tar.gz"
+    url = f"https://github.com/{spec['repo']}/archive/{spec['commit']}.tar.gz"
+    download(url, archive)
+    extracted = extract_archive(archive, tmp)
+
+    destination = package_root / "libraries" / name
+    if destination.exists():
+        shutil.rmtree(destination)
+    shutil.copytree(extracted, destination)
+
+    required = destination / spec["required"]
+    if not required.exists():
+        raise RuntimeError(f"{name} is incomplete: missing {required}")
+
+
+def validate_package(package_root: Path) -> None:
+    required_paths = [
+        package_root / "libraries" / "Adafruit_ZeroDMA" / "Adafruit_ZeroDMA.h",
+        package_root
+        / "libraries"
+        / "Adafruit_TinyUSB_Arduino"
+        / "src"
+        / "Adafruit_TinyUSB.h",
+        package_root / "variants" / "qtpy_m0" / "variant.h",
+        package_root / "variants" / "graspionBody" / "variant.h",
+        package_root / "bootloaders" / "qtpyM0" / "bootloader-qtpy_m0.bin",
+    ]
+    missing = [str(path) for path in required_paths if not path.exists()]
+    if missing:
+        raise RuntimeError("Incomplete package:\n  " + "\n  ".join(missing))
 
 
 def find_adafruit_samd_platform(index: dict) -> tuple[dict, dict]:
@@ -132,12 +198,14 @@ def main() -> None:
         source_archive = tmp / "adafruit-samd.tar.gz"
         download(ADAFRUIT_CORE_URL, source_archive)
 
-        with tarfile.open(source_archive, "r:gz") as tar:
-            tar.extractall(tmp, filter="data")
-
-        extracted = tmp / f"ArduinoCore-samd-{ADAFRUIT_CORE_VERSION}"
+        extracted = extract_archive(source_archive, tmp)
         package_root = tmp / package_root_name
         shutil.copytree(extracted, package_root)
+
+        # GitHub source archives omit submodule contents. Install the exact
+        # submodule revisions pinned by ArduinoCore-samd 1.7.17.
+        for name, spec in SUBMODULES.items():
+            install_submodule(package_root, tmp, name, spec)
 
         board_text = board_fragment.read_text(encoding="utf-8")
         if not board_text.endswith("\n"):
@@ -166,6 +234,8 @@ def main() -> None:
             if not source.exists():
                 raise FileNotFoundError(source)
             shutil.copy2(source, graspion_destination / filename)
+
+        validate_package(package_root)
 
         with tarfile.open(archive_path, "w:bz2") as tar:
             tar.add(package_root, arcname=package_root_name)
