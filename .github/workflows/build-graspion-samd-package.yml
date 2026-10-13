@@ -17,11 +17,22 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Build package
         run: |
           python3 arduino/samd/build_package.py --version "${{ inputs.version }}"
+
+      - name: Validate package contents
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          ARCHIVE="dist/graspion-samd-${VERSION}.tar.bz2"
+          ROOT="graspion-samd-${VERSION}"
+          tar -tjf "$ARCHIVE" | grep -q "${ROOT}/libraries/Adafruit_ZeroDMA/Adafruit_ZeroDMA.h"
+          tar -tjf "$ARCHIVE" | grep -q "${ROOT}/libraries/Adafruit_TinyUSB_Arduino/src/Adafruit_TinyUSB.h"
+          tar -tjf "$ARCHIVE" | grep -q "${ROOT}/variants/graspionBody/variant.h"
+          tar -tjf "$ARCHIVE" | grep -q "${ROOT}/variants/qtpy_m0/variant.h"
 
       - name: Create or update GitHub release
         env:
