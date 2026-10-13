@@ -1,0 +1,125 @@
+menu.opt=Optimize
+menu.usbstack=USB Stack
+menu.debug=Debug
+
+# -----------------------------------
+# Adafruit QT Py M0 (SAMD21)
+# -----------------------------------
+adafruit_qtpy_m0.name=Adafruit QT Py M0 (SAMD21)
+
+# VID/PID for Bootloader, Arduino & CircuitPython
+adafruit_qtpy_m0.vid.0=0x239A
+adafruit_qtpy_m0.pid.0=0x80CB
+adafruit_qtpy_m0.vid.1=0x239A
+adafruit_qtpy_m0.pid.1=0x00CB
+adafruit_qtpy_m0.vid.2=0x239A
+adafruit_qtpy_m0.pid.2=0x00CC
+
+# Upload
+adafruit_qtpy_m0.upload.tool=bossac18
+adafruit_qtpy_m0.upload.protocol=sam-ba
+adafruit_qtpy_m0.upload.maximum_size=262144
+adafruit_qtpy_m0.upload.offset=0x2000
+adafruit_qtpy_m0.upload.use_1200bps_touch=true
+adafruit_qtpy_m0.upload.wait_for_upload_port=true
+adafruit_qtpy_m0.upload.native_usb=true
+
+# Build
+adafruit_qtpy_m0.build.mcu=cortex-m0plus
+adafruit_qtpy_m0.build.f_cpu=48000000L
+adafruit_qtpy_m0.build.usb_product="QT Py M0"
+adafruit_qtpy_m0.build.usb_manufacturer="Adafruit"
+adafruit_qtpy_m0.build.board=QTPY_M0
+adafruit_qtpy_m0.build.core=arduino
+adafruit_qtpy_m0.build.extra_flags=-D__SAMD21E18A__ -DCRYSTALLESS -DADAFRUIT_QTPY_M0 -DARM_MATH_CM0PLUS {build.usb_flags}
+adafruit_qtpy_m0.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+adafruit_qtpy_m0.build.openocdscript=scripts/openocd/daplink_samd21.cfg
+adafruit_qtpy_m0.build.variant=qtpy_m0
+adafruit_qtpy_m0.build.variant_system_lib=
+adafruit_qtpy_m0.build.vid=0x239A
+adafruit_qtpy_m0.build.pid=0x80CB
+adafruit_qtpy_m0.bootloader.tool=openocd
+adafruit_qtpy_m0.bootloader.file=qtpyM0/bootloader-qtpy_m0.bin
+
+# Menu: Optimization
+adafruit_qtpy_m0.menu.opt.small=Small (-Os) (standard)
+adafruit_qtpy_m0.menu.opt.small.build.flags.optimize=-Os
+adafruit_qtpy_m0.menu.opt.fast=Fast (-O2)
+adafruit_qtpy_m0.menu.opt.fast.build.flags.optimize=-O2
+adafruit_qtpy_m0.menu.opt.faster=Faster (-O3)
+adafruit_qtpy_m0.menu.opt.faster.build.flags.optimize=-O3
+adafruit_qtpy_m0.menu.opt.fastest=Fastest (-Ofast)
+adafruit_qtpy_m0.menu.opt.fastest.build.flags.optimize=-Ofast
+adafruit_qtpy_m0.menu.opt.dragons=Here be dragons (-Ofast -funroll-loops)
+adafruit_qtpy_m0.menu.opt.dragons.build.flags.optimize=-Ofast -funroll-loops
+
+# Menu: USB Stack
+adafruit_qtpy_m0.menu.usbstack.arduino=Arduino
+adafruit_qtpy_m0.menu.usbstack.tinyusb=TinyUSB
+adafruit_qtpy_m0.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
+
+# Menu: Debug
+adafruit_qtpy_m0.menu.debug.off=Off
+adafruit_qtpy_m0.menu.debug.on=On
+adafruit_qtpy_m0.menu.debug.on.build.flags.debug=-g
+
+# -----------------------------------
+# GRASPion Body (SAMD21)
+# -----------------------------------
+graspionBody.name=GRASPion Body (SAMD21)
+
+# Same VID/PID and bootloader as QT Py M0
+graspionBody.vid.0=0x239A
+graspionBody.pid.0=0x80CB
+graspionBody.vid.1=0x239A
+graspionBody.pid.1=0x00CB
+graspionBody.vid.2=0x239A
+graspionBody.pid.2=0x00CC
+
+# Upload
+graspionBody.upload.tool=bossac18
+graspionBody.upload.protocol=sam-ba
+graspionBody.upload.maximum_size=262144
+graspionBody.upload.offset=0x2000
+graspionBody.upload.use_1200bps_touch=true
+graspionBody.upload.wait_for_upload_port=true
+graspionBody.upload.native_usb=true
+
+# Build
+graspionBody.build.mcu=cortex-m0plus
+graspionBody.build.f_cpu=48000000L
+graspionBody.build.usb_product="GRASPion Body"
+graspionBody.build.usb_manufacturer="GRASP Lab - University of Liege"
+graspionBody.build.board=GRASPION_BODY
+graspionBody.build.core=arduino
+graspionBody.build.extra_flags=-D__SAMD21E18A__ -DCRYSTALLESS -DADAFRUIT_QTPY_M0 -DARM_MATH_CM0PLUS {build.usb_flags}
+graspionBody.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+graspionBody.build.openocdscript=scripts/openocd/daplink_samd21.cfg
+graspionBody.build.variant=graspionBody
+graspionBody.build.variant_system_lib=
+graspionBody.build.vid=0x239A
+graspionBody.build.pid=0x80CB
+graspionBody.bootloader.tool=openocd
+graspionBody.bootloader.file=qtpyM0/bootloader-qtpy_m0.bin
+
+# Menu: Optimization
+graspionBody.menu.opt.small=Small (-Os) (standard)
+graspionBody.menu.opt.small.build.flags.optimize=-Os
+graspionBody.menu.opt.fast=Fast (-O2)
+graspionBody.menu.opt.fast.build.flags.optimize=-O2
+graspionBody.menu.opt.faster=Faster (-O3)
+graspionBody.menu.opt.faster.build.flags.optimize=-O3
+graspionBody.menu.opt.fastest=Fastest (-Ofast)
+graspionBody.menu.opt.fastest.build.flags.optimize=-Ofast
+graspionBody.menu.opt.dragons=Here be dragons (-Ofast -funroll-loops)
+graspionBody.menu.opt.dragons.build.flags.optimize=-Ofast -funroll-loops
+
+# Menu: USB Stack
+graspionBody.menu.usbstack.arduino=Arduino
+graspionBody.menu.usbstack.tinyusb=TinyUSB
+graspionBody.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
+
+# Menu: Debug
+graspionBody.menu.debug.off=Off
+graspionBody.menu.debug.on=On
+graspionBody.menu.debug.on.build.flags.debug=-g
