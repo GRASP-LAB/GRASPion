@@ -1,0 +1,65 @@
+name: Build GRASPion SAMD Arduino package
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: GRASPion SAMD package version
+        required: true
+        default: 1.0.0
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build package
+        run: |
+          python3 arduino/samd/build_package.py --version "${{ inputs.version }}"
+
+      - name: Create or update GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          TAG="arduino-samd-${VERSION}"
+          ARCHIVE="dist/graspion-samd-${VERSION}.tar.bz2"
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$ARCHIVE" --clobber
+          else
+            gh release create "$TAG" "$ARCHIVE" \
+              --title "GRASPion SAMD Arduino ${VERSION}" \
+              --notes "Arduino Boards Manager package for GRASPion Body and Adafruit QT Py M0, based on Adafruit SAMD core 1.7.17."
+          fi
+
+      - name: Update stable Boards Manager index
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          cp dist/package_graspion_index.json package_graspion_index.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package_graspion_index.json
+
+          if git diff --cached --quiet; then
+            echo "Board Manager index already up to date"
+            exit 0
+          fi
+
+          git commit -m "Update GRASPion SAMD package index to ${VERSION}"
+          git push origin HEAD:${GITHUB_REF_NAME}
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: graspion-samd-${{ inputs.version }}
+          path: |
+            dist/graspion-samd-${{ inputs.version }}.tar.bz2
+            dist/package_graspion_index.json
