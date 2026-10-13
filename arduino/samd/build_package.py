@@ -153,8 +153,19 @@ def main() -> None:
         shutil.copytree(qtpy_source, saved_qtpy)
         shutil.rmtree(variants_root)
         variants_root.mkdir(parents=True)
+
+        # Keep the original QT Py M0 variant.
         shutil.copytree(saved_qtpy, variants_root / "qtpy_m0")
-        shutil.copytree(graspion_variant_dir, variants_root / "graspionBody")
+
+        # Start GRASPion Body from the complete upstream QT Py M0 variant so
+        # linker/debug/openocd support remains exactly aligned with Adafruit.
+        graspion_destination = variants_root / "graspionBody"
+        shutil.copytree(saved_qtpy, graspion_destination)
+        for filename in ("variant.h", "variant.cpp", "pins_arduino.h"):
+            source = graspion_variant_dir / filename
+            if not source.exists():
+                raise FileNotFoundError(source)
+            shutil.copy2(source, graspion_destination / filename)
 
         with tarfile.open(archive_path, "w:bz2") as tar:
             tar.add(package_root, arcname=package_root_name)
