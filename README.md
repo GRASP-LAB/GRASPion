@@ -104,21 +104,22 @@ The variant also:
 - sets Arduino PWM writes to 8-bit resolution, so the motor neutral value is `127`;
 - keeps the QT Py M0 SPI mapping for compatibility.
 
-### Libraries
+### Bundled libraries
 
-Depending on the example or application, the following Arduino libraries may be required:
+A fresh installation of the GRASPion SAMD package already includes the libraries used by the main
+GRASPion examples. No separate Library Manager installation is required for the standard setup.
 
-| Library | Link |
-| --- | --- |
-| Adafruit NeoPixel | https://github.com/adafruit/Adafruit_NeoPixel |
-| Adafruit DMA NeoPixel | https://github.com/adafruit/Adafruit_NeoPixel_ZeroDMA |
-| Adafruit_MLX90393 | https://github.com/adafruit/Adafruit_MLX90393_Library |
-| Adafruit Unified Sensor | https://github.com/adafruit/Adafruit_Sensor |
-| Adafruit_BusIO | https://github.com/adafruit/Adafruit_BusIO |
-| Arduino-IRremote | https://github.com/Arduino-IRremote/Arduino-IRremote |
+| Library | Bundled version |
+| --- | ---: |
+| Adafruit NeoPixel | 1.15.5 |
+| Adafruit MLX90393 | 2.0.5 |
+| Adafruit BusIO | 1.17.4 |
+| Adafruit Unified Sensor | 1.1.15 |
+| Arduino-IRremote | 4.7.1 |
 
-Dependencies such as **Adafruit BusIO** and **Adafruit Unified Sensor** may be installed
-automatically with the corresponding Adafruit libraries.
+The bundled copies are installed inside the GRASPion platform. Advanced users can still install a
+newer version through Arduino Library Manager when needed; a user-installed copy can override the
+bundled one.
 
 ### Infrared interface
 
@@ -207,8 +208,10 @@ to a powered USB-C cable or charger may be required before normal operation resu
 
 ### HelloGRASPion
 
-`examples/HelloGRASPion.ino` is the recommended first sketch. It demonstrates, in one
-small human-readable program:
+`HelloGRASPion` is installed with the GRASPion SAMD package and appears directly in the Arduino IDE
+examples menu. The source is also kept in this repository as `examples/HelloGRASPion.ino`.
+
+It demonstrates, in one small human-readable program:
 
 - the 5-character robot ID;
 - USB serial diagnostics;
