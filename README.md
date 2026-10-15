@@ -1,10 +1,8 @@
 # GRASPion
-The GRASPion is an intelligent bristlebot deisgned for research and education purposes based around
-the Adafruit QTPy SAMD21, making it extremely easy-to-use through the Arduino environment. It relies
-on two vibrating motors embedded in the bot to move around, and thanks to the carefuly design of its
-body and legs available here, it can execute controlled trajectories, by moving straight or turning,
-making it a new platform for the experimental study of active matter. It achieves higher velocities
-(approx. 15 cm/s) and is capable of higher computing power, than previous types of such bots.
+The GRASPion is an intelligent bristlebot designed for research and education purposes around the
+SAMD21E18A microcontroller and the Arduino environment. It relies on two vibrating motors embedded
+in the bot to move around and can execute controlled trajectories by moving straight or turning,
+making it a platform for the experimental study of active matter.
 
 <img width="1024" height="620" alt="image" src="https://github.com/user-attachments/assets/87e0c45d-7d9f-4518-a012-564adfe0e1b0" />
 
@@ -13,37 +11,35 @@ our technical paper (see here). The GRASPion, with a printed and fully assembled
 printed body, battery, motors and legs is available for order through
 [graspion.be](https://graspion.be).
 
-
 ## 3D printing
+
 The bot is made out of three 3D printed objects: the chassis, the legs and the wedge plate in
-between them. The STL files of the thre can be found in the printing directory.
+between them. The STL files can be found in the printing directory.
 
 ### The chassis
-The chassis (or the body) is printed out of ABS plastic using the Stratasys J35 PolyJet
-printer. This allows for a high resolution print, needed in order to properly fit the vibrating
-motors and the battery, and giving a hard body to the robot in order to handle eventual collisions.
+
+The chassis (or body) is printed out of ABS plastic using the Stratasys J35 PolyJet printer. This
+allows for the resolution needed to properly fit the vibrating motors and battery while providing a
+hard body able to handle collisions.
 
 ### The legs
-The legs and wedge plate are printed out of PLA, and we find that the Prusament PLA Prusa Galaxy
-handles well and gives consistently reproducible results, using the Prusa XL printer, on the
-Structural setting, with 15% infill. It is very important that the legs are printed one-by-one, and
-not multiple legs at the same time, since this significantly alters layer adhesion and finally
-flexibility of the legs. The wedge plate is printed using the same material.
 
+The legs and wedge plate are printed out of PLA. Prusament PLA Prusa Galaxy gives consistently
+reproducible results using the Prusa XL printer, Structural setting and 15% infill. It is important
+that the legs are printed one-by-one rather than multiple legs at the same time, since this changes
+layer adhesion and therefore leg flexibility.
 
 ## Arduino setup
 
-The GRASPion Body is based on the **SAMD21E18A microcontroller** and uses the same Arduino pin mapping
-as the **Adafruit QT Py M0**.
-
-For normal use, we recommend selecting the dedicated:
+The GRASPion Body is based on the **SAMD21E18A** and keeps the Arduino pin mapping of the
+**Adafruit QT Py M0** where practical. For new development, select the dedicated board definition:
 
 ```text
 GRASPion Body (SAMD21)
 ```
 
-board definition. It keeps the same SAMD21 and pin mapping as the QT Py M0 while adding
-GRASPion-specific names that make sketches easier to read and maintain.
+This keeps existing QT Py M0 sketches largely compatible while exposing names that correspond to
+the actual GRASPion hardware.
 
 ### 1. Install the GRASPion board package
 
@@ -53,9 +49,8 @@ Open the Arduino IDE preferences and add the following URL to **Additional Board
 https://raw.githubusercontent.com/GRASP-LAB/GRASPion/main/package_graspion_index.json
 ```
 
-Then open the **Boards Manager**, search for **GRASPion**, and install the GRASPion SAMD package.
-
-After installation, select:
+Then open the **Boards Manager**, search for **GRASPion**, install the GRASPion SAMD package and
+select:
 
 ```text
 GRASPion Body (SAMD21)
@@ -69,9 +64,9 @@ Recommended settings:
 | Optimization | Ofast |
 | USB Stack | TinyUSB |
 
-### GRASPion-specific pin names
+### GRASPion Body API
 
-The dedicated board definition provides readable aliases for the main GRASPion Body functions:
+The dedicated variant provides readable names for the main hardware functions:
 
 ```cpp
 BUZ_LEFT
@@ -80,17 +75,34 @@ BUZ_ENABLE
 
 IR_TX
 IR_RX
+SerialIR
+
+HEAD_TX
+HEAD_RX
+SerialHead
 
 LIGHT_SENSOR
 
 PIN_NEOPIXEL
+NUM_NEOPIXELS
 NEOPIXEL_BOTTOM
 NEOPIXEL_TOP
 
 MLX90393_I2C_ADDRESS
+
+getGRASPionID(id)
 ```
 
-Using these names is recommended instead of relying directly on Arduino pin numbers.
+`getGRASPionID()` returns a stable **5-character URL-safe Base64 ID** derived from the complete
+factory-programmed 128-bit SAMD21 unique serial number. The UID is hashed to 30 bits before
+encoding; the short ID is intended as a convenient robot identifier, not as a replacement for the
+full 128-bit UID when mathematically guaranteed uniqueness is required.
+
+The variant also:
+
+- disables the vibration-motor driver during startup;
+- sets Arduino PWM writes to 8-bit resolution, so the motor neutral value is `127`;
+- keeps the QT Py M0 SPI mapping for compatibility.
 
 ### Libraries
 
@@ -98,91 +110,124 @@ Depending on the example or application, the following Arduino libraries may be 
 
 | Library | Link |
 | --- | --- |
-| Adafruit Neopixel | https://github.com/adafruit/Adafruit_NeoPixel |
-| Adafruit DMA neopixel | https://github.com/adafruit/Adafruit_NeoPixel_ZeroDMA |
+| Adafruit NeoPixel | https://github.com/adafruit/Adafruit_NeoPixel |
+| Adafruit DMA NeoPixel | https://github.com/adafruit/Adafruit_NeoPixel_ZeroDMA |
 | Adafruit_MLX90393 | https://github.com/adafruit/Adafruit_MLX90393_Library |
 | Adafruit Unified Sensor | https://github.com/adafruit/Adafruit_Sensor |
 | Adafruit_BusIO | https://github.com/adafruit/Adafruit_BusIO |
 | Arduino-IRremote | https://github.com/Arduino-IRremote/Arduino-IRremote |
 
-These libraries can be installed using the Arduino Library Manager.
-
-Dependencies such as **Adafruit BusIO** and **Adafruit Unified Sensor** may be installed automatically
-with the corresponding Adafruit libraries.
+Dependencies such as **Adafruit BusIO** and **Adafruit Unified Sensor** may be installed
+automatically with the corresponding Adafruit libraries.
 
 ### Infrared interface
 
-The GRASPion Body includes infrared transmission and reception hardware.
-
-`IR_TX` is the data signal generated by the SAMD21. This signal is sent to the on-board
-**AVR32DD20**, which modulates it onto a **38 kHz infrared carrier** before driving the IR LED.
-
-`IR_RX` is connected to the infrared receiver and can be used with libraries such as
-**Arduino-IRremote**, for example to receive commands from a standard television remote control.
-
-### Serial interface
-
-The GRASPion Body provides a hardware serial interface through:
+The GRASPion Body has dedicated infrared transmit and receive hardware.
 
 ```cpp
-Serial1
+SerialIR.begin(2400);
 ```
 
-This interface can be used to exchange data with external electronics connected to the robot.
+uses:
+
+- `IR_TX` / PA06 to send the unmodulated data envelope to the on-board **AVR32DD20**;
+- the AVR32DD20 to generate the **38 kHz carrier** and drive the IR LED;
+- `IR_RX` / PA07 to receive the demodulated signal from the **TSOP75438** IR receiver.
+
+For **Arduino-IRremote**, the GRASPion board definition automatically defines
+`USE_NO_SEND_PWM`. IRremote therefore generates only the modulation envelope on `IR_TX`; the
+AVR32DD20 generates the physical 38 kHz carrier.
+
+Because the transmitter and receiver are on the same robot, a GRASPion can optically receive its
+own IR transmission. Applications using addressed packets should ignore packets containing their
+own robot ID when appropriate.
+
+### Head interface
+
+The head connector provides a dedicated UART:
+
+```cpp
+SerialHead.begin(115200);
+```
+
+with:
+
+```cpp
+HEAD_RX   // PA09
+HEAD_TX   // PA10
+```
+
+For QT Py M0 compatibility, PA09/PA10/PA11 are still available as `MISO`, `MOSI` and `SCK`.
+`SerialHead` and the standard `SPI` interface share **SERCOM2** and must therefore not be used at
+the same time.
 
 ### NeoPixels
 
-The GRASPion Body contains two addressable RGB LEDs.
-
-The board definition provides:
+The GRASPion Body contains two addressable RGB LEDs connected as one chain:
 
 ```cpp
 PIN_NEOPIXEL
+NUM_NEOPIXELS
 NEOPIXEL_BOTTOM
 NEOPIXEL_TOP
-NUM_NEOPIXELS
 ```
 
-### Magnetic field sensor
+The data output of the top Body NeoPixel is also routed to the Head connector, allowing an optional
+Head NeoPixel to be chained after the two Body LEDs.
 
-The GRASPion Body includes an **MLX90393** magnetic field sensor connected over I2C.
+### Sensors and board information
 
-Its I2C address is available through:
+The ambient light sensor is available through:
+
+```cpp
+analogRead(LIGHT_SENSOR);
+```
+
+The on-board **MLX90393** magnetic-field sensor is connected over I2C at:
 
 ```cpp
 MLX90393_I2C_ADDRESS
 ```
 
+With the Adafruit MLX90393 library, `readData()` returns the X, Y and Z magnetic flux-density
+components in **microteslas (uT)**.
+
+The on-board AVR32DD20 also exposes board power information over I2C address `0x36`. A read of five
+bytes returns the measured USB-bus voltage and battery voltage used by the examples.
+
 ### Uploading firmware
 
-Connect the GRASPion Body to the computer using USB-C and select the corresponding serial port in the
-Arduino IDE.
-
-The battery is not required for programming when the board is powered through USB.
-
-The robot does **not** need to be connected in order to compile a sketch.
+Connect the GRASPion Body to the computer using USB-C and select the corresponding serial port in
+the Arduino IDE. The battery is not required for programming when the board is powered through USB.
 
 If the board has been fully disconnected from both the battery and external power, reconnecting it
 to a powered USB-C cable or charger may be required before normal operation resumes.
 
 ## Code examples
 
-For new development, the recommended board is:
+### HelloGRASPion
+
+`examples/HelloGRASPion.ino` is the recommended first sketch. It demonstrates, in one
+small human-readable program:
+
+- the 5-character robot ID;
+- USB serial diagnostics;
+- ambient-light measurement;
+- MLX90393 magnetic-field measurement;
+- USB and battery voltage reporting from the AVR32DD20;
+- `SerialIR`;
+- `SerialHead`;
+- both Body NeoPixels;
+- both vibration motors.
+
+The USB console reports values in explicit scientific units, for example:
 
 ```text
-GRASPion Body (SAMD21)
+GRASPion #z_kzN | Light=40 | B[uT]=(-12.4, 38.1, 4.7) | VBUS=4987 mV | VBAT=4012 mV | USB=yes
 ```
 
-The GRASPion Body uses the same SAMD21 and Arduino pin mapping as the Adafruit QT Py M0, so existing
-QT Py M0 code remains largely compatible.
-
-Some older GRASPion sketches may still require selecting:
-
-```text
-Adafruit QT Py M0 (SAMD21)
-```
-
-if they rely directly on QT Py-specific board definitions or macros.
+Older examples in this repository may still use direct QT Py M0 pin names. The dedicated
+`GRASPion Body (SAMD21)` definition is recommended for new code.
 
 An upload script is also included to facilitate programming multiple robots through a USB hub. The
 upload script relies on [arduino-cli](https://github.com/arduino/arduino-cli), which can easily be
