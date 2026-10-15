@@ -27,16 +27,29 @@ exact commits used by Adafruit 1.7.17:
 
 The build fails if the expected headers are missing from the generated package.
 
-Application libraries such as Adafruit NeoPixel, Adafruit MLX90393, Adafruit
-BusIO and Adafruit Unified Sensor are intentionally not bundled in the core;
-they should be installed through Arduino Library Manager when needed.
+## Bundled application libraries
+
+To make a fresh Boards Manager installation immediately usable, the SAMD
+package also bundles pinned copies of the libraries used by GRASPion examples:
+
+- Adafruit NeoPixel `1.15.5`
+- Adafruit MLX90393 `2.0.5`
+- Adafruit BusIO `1.17.4`
+- Adafruit Unified Sensor `1.1.15`
+- Arduino-IRremote `4.7.1`
+
+These copies live inside the installed platform. If a user installs a newer
+copy through Arduino Library Manager, the user-installed library can override
+the bundled one.
+
+The package also exposes `HelloGRASPion` in the Arduino IDE examples menu.
 
 ## Local build
 
 From the repository root:
 
 ```bash
-python3 arduino/samd/build_package.py --version 1.0.0
+python3 arduino/samd/build_package.py --version 1.0.1
 ```
 
 The generated files are written to `dist/`.
@@ -48,10 +61,12 @@ the desired package version. The workflow:
 
 1. downloads Adafruit ArduinoCore-samd 1.7.17;
 2. downloads the exact TinyUSB and ZeroDMA submodule commits used by that core;
-3. keeps only the QT Py M0 and GRASPion Body board definitions;
-4. keeps the upstream `qtpy_m0` variant and adds `graspionBody`;
-5. validates the generated archive contents;
-6. builds `graspion-samd-VERSION.tar.bz2`;
-7. creates or updates release `arduino-samd-VERSION`;
-8. merges the SAMD platform into the common `package_graspion_index.json`
-   without removing the nRF52 platform.
+3. downloads the pinned application libraries used by GRASPion examples;
+4. installs the `HelloGRASPion` example into the generated platform;
+5. keeps only the QT Py M0 and GRASPion Body board definitions;
+6. keeps the upstream `qtpy_m0` variant and adds `graspionBody`;
+7. validates the generated archive contents;
+8. builds `graspion-samd-VERSION.tar.bz2`;
+9. creates or updates release `arduino-samd-VERSION`;
+10. merges the SAMD platform into the common `package_graspion_index.json`
+    without removing the nRF52 platform.
