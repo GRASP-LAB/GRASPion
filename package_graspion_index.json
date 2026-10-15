@@ -45,12 +45,12 @@
         {
           "name": "GRASPion SAMD Boards",
           "architecture": "samd",
-          "version": "1.0.0",
+          "version": "1.0.1",
           "category": "Contributed",
-          "url": "https://github.com/GRASP-LAB/GRASPion/releases/download/arduino-samd-1.0.0/graspion-samd-1.0.0.tar.bz2",
-          "archiveFileName": "graspion-samd-1.0.0.tar.bz2",
-          "checksum": "SHA-256:21f24171e7a5c1044a6b15bfdd2c55071f1895e0ae70a2821c176e7144bf36c1",
-          "size": "4599852",
+          "url": "https://github.com/GRASP-LAB/GRASPion/releases/download/arduino-samd-1.0.1/graspion-samd-1.0.1.tar.bz2",
+          "archiveFileName": "graspion-samd-1.0.1.tar.bz2",
+          "checksum": "SHA-256:c1dcb7dbfc45e3ed41969c4e2a4aacd39e41edb45354dfcea02701ea9942376e",
+          "size": "5850842",
           "boards": [
             {
               "name": "Adafruit QT Py M0 (SAMD21)"
