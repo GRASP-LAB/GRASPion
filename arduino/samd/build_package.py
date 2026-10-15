@@ -8,6 +8,10 @@ and the GRASPion Body board.
 ArduinoCore-samd 1.7.17 uses Adafruit_TinyUSB_Arduino and Adafruit_ZeroDMA as
 git submodules. GitHub source archives do not contain submodule contents, so
 this builder downloads the exact submodule commits referenced by the core.
+
+The package also bundles the application libraries used by GRASPion examples,
+so a fresh Boards Manager installation is ready to use without a separate
+Library Manager setup.
 """
 
 from __future__ import annotations
@@ -43,6 +47,36 @@ SUBMODULES = {
         "repo": "adafruit/Adafruit_ZeroDMA",
         "commit": ZERODMA_COMMIT,
         "required": "Adafruit_ZeroDMA.h",
+    },
+}
+
+# Pinned libraries shipped inside the platform. A library installed by the
+# user through Arduino Library Manager can still override these bundled copies.
+APPLICATION_LIBRARIES = {
+    "Adafruit_NeoPixel": {
+        "repo": "adafruit/Adafruit_NeoPixel",
+        "tag": "1.15.5",
+        "required": "Adafruit_NeoPixel.h",
+    },
+    "Adafruit_MLX90393": {
+        "repo": "adafruit/Adafruit_MLX90393_Library",
+        "tag": "2.0.5",
+        "required": "Adafruit_MLX90393.h",
+    },
+    "Adafruit_BusIO": {
+        "repo": "adafruit/Adafruit_BusIO",
+        "tag": "1.17.4",
+        "required": "Adafruit_I2CDevice.h",
+    },
+    "Adafruit_Sensor": {
+        "repo": "adafruit/Adafruit_Sensor",
+        "tag": "1.1.15",
+        "required": "Adafruit_Sensor.h",
+    },
+    "IRremote": {
+        "repo": "Arduino-IRremote/Arduino-IRremote",
+        "tag": "v4.7.1",
+        "required": "src/IRremote.hpp",
     },
 }
 
@@ -90,6 +124,60 @@ def install_submodule(package_root: Path, tmp: Path, name: str, spec: dict) -> N
         raise RuntimeError(f"{name} is incomplete: missing {required}")
 
 
+def install_application_library(
+    package_root: Path, tmp: Path, name: str, spec: dict
+) -> None:
+    archive = tmp / f"{name}.tar.gz"
+    url = f"https://github.com/{spec['repo']}/archive/refs/tags/{spec['tag']}.tar.gz"
+    download(url, archive)
+    extracted = extract_archive(archive, tmp)
+
+    destination = package_root / "libraries" / name
+    if destination.exists():
+        shutil.rmtree(destination)
+    shutil.copytree(extracted, destination)
+
+    required = destination / spec["required"]
+    if not required.exists():
+        raise RuntimeError(f"{name} is incomplete: missing {required}")
+
+
+def install_graspion_examples(
+    package_root: Path, repo_root: Path, version: str
+) -> None:
+    source_example = repo_root / "examples" / "HelloGRASPion.ino"
+    if not source_example.exists():
+        raise FileNotFoundError(source_example)
+
+    library_root = package_root / "libraries" / "GRASPion"
+    example_dir = library_root / "examples" / "HelloGRASPion"
+    src_dir = library_root / "src"
+    example_dir.mkdir(parents=True, exist_ok=True)
+    src_dir.mkdir(parents=True, exist_ok=True)
+
+    shutil.copy2(source_example, example_dir / "HelloGRASPion.ino")
+
+    (src_dir / "GRASPion.h").write_text(
+        "#pragma once\n"
+        "// GRASPion examples and board support are provided by the platform.\n",
+        encoding="utf-8",
+    )
+
+    (library_root / "library.properties").write_text(
+        f"name=GRASPion\n"
+        f"version={version}\n"
+        "author=GRASP Lab - University of Liège\n"
+        "maintainer=GRASP Lab - University of Liège\n"
+        "sentence=Examples for the GRASPion Body.\n"
+        "paragraph=Examples and helpers for the GRASPion research and education robot.\n"
+        "category=Other\n"
+        "url=https://graspion.be\n"
+        "architectures=samd\n"
+        "includes=GRASPion.h\n",
+        encoding="utf-8",
+    )
+
+
 def validate_package(package_root: Path) -> None:
     required_paths = [
         package_root / "libraries" / "Adafruit_ZeroDMA" / "Adafruit_ZeroDMA.h",
@@ -98,6 +186,17 @@ def validate_package(package_root: Path) -> None:
         / "Adafruit_TinyUSB_Arduino"
         / "src"
         / "Adafruit_TinyUSB.h",
+        package_root / "libraries" / "Adafruit_NeoPixel" / "Adafruit_NeoPixel.h",
+        package_root / "libraries" / "Adafruit_MLX90393" / "Adafruit_MLX90393.h",
+        package_root / "libraries" / "Adafruit_BusIO" / "Adafruit_I2CDevice.h",
+        package_root / "libraries" / "Adafruit_Sensor" / "Adafruit_Sensor.h",
+        package_root / "libraries" / "IRremote" / "src" / "IRremote.hpp",
+        package_root
+        / "libraries"
+        / "GRASPion"
+        / "examples"
+        / "HelloGRASPion"
+        / "HelloGRASPion.ino",
         package_root / "variants" / "qtpy_m0" / "variant.h",
         package_root / "variants" / "graspionBody" / "variant.h",
         package_root / "bootloaders" / "qtpyM0" / "bootloader-qtpy_m0.bin",
@@ -160,7 +259,7 @@ def merge_index(existing_index: dict | None, platform: dict, tools: list[dict]) 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--version", default="1.0.0", help="GRASPion SAMD package version")
+    parser.add_argument("--version", default="1.0.1", help="GRASPion SAMD package version")
     parser.add_argument(
         "--repo",
         default="GRASP-LAB/GRASPion",
@@ -202,10 +301,16 @@ def main() -> None:
         package_root = tmp / package_root_name
         shutil.copytree(extracted, package_root)
 
-        # GitHub source archives omit submodule contents. Install the exact
-        # submodule revisions pinned by ArduinoCore-samd 1.7.17.
+        # Core libraries required by ArduinoCore-samd itself.
         for name, spec in SUBMODULES.items():
             install_submodule(package_root, tmp, name, spec)
+
+        # Libraries used by GRASPion sketches are deliberately bundled so a
+        # fresh Boards Manager install can compile the examples immediately.
+        for name, spec in APPLICATION_LIBRARIES.items():
+            install_application_library(package_root, tmp, name, spec)
+
+        install_graspion_examples(package_root, repo_root, args.version)
 
         board_text = board_fragment.read_text(encoding="utf-8")
         if not board_text.endswith("\n"):
