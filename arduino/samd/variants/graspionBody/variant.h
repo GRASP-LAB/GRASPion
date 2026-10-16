@@ -84,7 +84,7 @@ extern "C"
 #define LIGHT_SENSOR         (A0)    // PA02
 
 // On-board magnetometer
-#define MLX90393_I2C_ADDRESS (0x10)
+#define MLX90393_I2C_ADDRESS (0x10) // MLX90393ELW-ABA-012-RE
 
 /*----------------------------------------------------------------------------
  * Analog pins
